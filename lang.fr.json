@@ -1,0 +1,23 @@
+{
+    "weak": "Faible",
+    "basic": "Moyenne",
+    "strong": "Forte",
+
+    "error.no_key_file": "Erreur : Le fichier de clef est absent !",
+
+    "helper.hello": "Bienvenu !\nVous allez pouvoir decrypter votre dossier !\nTout d'abord, veuillez inserrer votre clef USB usuelle.",
+    "helper.reset_keys": "Vos clefs de chiffrements on subits des dommages !\nNous allons les reinitialiser avec votre clef USB de secours !\nVeuillez ejecter votre clef usuelle, et inserer la clef USB de sauvegarde.",
+    "helper.reset_complet": "Vos clefs de chiffrement sont maintenant reinitialisees. Vous pouvez relancer ce logiciel pour acceder a votre contenue comme d'habitude.",
+    "helper.stop_and_crypt": "Vos fichiers sont de nouveau accessibles !\nAppuyez sur entrer pour sortir (et re crypter vos fichiers).",
+    "helper.generating": "Vos clefs sont en cours de creations...",
+    "helper.generated": "Les clefs ont ete crees !",
+    "helper.backup_key": "Veuillez inerer votre clef USB de savegarde : elle ne sera utile que si un probleme survient.",
+    "helper.eject": "Veuillez ejecter votre clef USB.",
+    "helper.encriptions": "Veuillez choisir l'un des type d'encription suivant :",
+    "helper.goodbye": "Les fichiers sont a present cryptes, au revoir !",
+
+    "input.null": "Pressez entre",
+    "input.usb_path": "Entrez le chemin d'access a votre clef USB : ",
+    "input.usual_usb": "Veuillez inserer votre clef usuelle, et entrer son chemin d'access : ",
+    "input.crypt_dir": "Veuillez entrer le chemin du dossier a crypter/decrypter : "
+}

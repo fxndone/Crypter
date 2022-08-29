@@ -1,27 +1,17 @@
 import os
+import shutil
 import sys
 import rsa
+import json
+import tempfile
 
-lang = {
-    "error.no_key_file": "Erreur : Le fichier de clef est absent !",
+config = json.load(open("config.json", 'r'))
 
-    "helper.reset_keys": """Vos clefs de chiffrements on subits des domages !
-Nous allons les reinitialiser avec votre clef USB de secours !
-Veuillez ejecter votre clef usuelle, et inserer la clef USB de sauvegarde.""",
-    "helper.reset_complet": "Vos clefs de chiffrement sont maintenant reinitialisees. Vous pouvez relancer ce logiciel pour acceder a votre contenue comme d'habitude.",
-
-    "input.null": "Pressez entre",
-    "input.usb_path": "Entrez le chemin d'access a votre clef USB : ",
-    "input.usual_usb": "Veuillez inserer votre clef usuelle, et entrer son chemin d'access : "
-}
-
-config = {
-    "pub.enclen": 117,
-}
+lang = json.load(open(f"lang.{config['lang']}.json", 'r'))
 
 def SaveKeys(public_key: bytes, private_key: bytes):
     with open("pub.key", 'wb+') as f:
-        f.write(encrypt(public_key, rsa.PublicKey.load_pkcs1(public_key), config["pub.enclen"]))
+        f.write(encrypt(public_key, rsa.PublicKey.load_pkcs1(public_key), config["enclen"]))
         f.close()
     filepath = input(lang["input.usual_usb"])
     while not os.path.isdir(filepath):
@@ -36,7 +26,7 @@ def ResetKeys():
     print(lang["helper.reset_keys"])
     input(lang["input.null"])
     filepath = input(lang["input.usb_path"])
-    while not (os.path.isdir(filepath) and "pub.key" in os.listdir(filepath) and "priv.key" in os.listdir(filepath)):
+    while not (os.path.isdir(filepath) and os.path.isfile(os.path.join(filepath, "pub.key")) and os.path.isfile(os.path.join(filepath, "priv.key"))):
         filepath = input(lang["input.usb_path"])
 
     with open(os.path.join(filepath, "pub.key"), 'rb') as f:
@@ -62,4 +52,48 @@ if not os.path.isfile("pub.key"):
 
     ResetKeys()
 else:
-    pass
+    print(lang["helper.hello"])
+    filepath = input(lang["input.usb_path"])
+    while not (os.path.isdir(filepath) and os.path.isfile(os.path.join(filepath, "priv.key"))):
+        filepath = input(lang["input.usb_path"])
+
+    with open(os.path.join(filepath, "priv.key"), 'rb') as f:
+        private_key = rsa.PrivateKey.load_pkcs1(f.read())
+
+    with open("pub.key", 'rb') as f:
+        try:
+            public_key = rsa.PublicKey.load_pkcs1(decrypt(f.read(), private_key, config["declen"]))
+        except rsa.pkcs1.DecryptionError:
+            ResetKeys()
+    
+    dirpath = config["dirpath"]
+    zippath = dirpath + '.zip'
+
+    decpath = tempfile.mkstemp()[1]
+
+    with open(zippath, 'rb') as f:
+        encoded = f.read()
+    
+    decoded = decrypt(encoded, private_key, config["declen"])
+
+    with open(decpath, 'wb+') as f:
+        f.write(decoded)
+    
+    shutil.unpack_archive(decpath, dirpath, "zip")
+    os.remove(zippath)
+    os.remove(decpath)
+
+    input(lang["helper.stop_and_crypt"])
+
+    shutil.make_archive(dirpath, format='zip', root_dir=dirpath)
+
+    shutil.rmtree(dirpath)
+
+    with open(zippath, 'rb') as f:
+        decoded = f.read()
+    
+    with open(zippath, 'wb+') as f:
+        f.write(encrypt(decoded, public_key, config["enclen"]))
+    
+    print(lang["helper.goodbye"])
+    sys.exit(0)
