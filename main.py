@@ -1,8 +1,12 @@
 import os
-import rsa
 import sys
 import json
 import shutil
+
+try:
+    import rsa
+except:
+    os.system(f"{sys.executable} -m pip install rsa")
 
 LANG = input("Language : ").lower()
 while not os.path.isfile(f"lang.{LANG}.json"):
