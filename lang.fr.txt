@@ -1,4 +1,0 @@
-weak
-basic
-strong
-error.no_key_file
